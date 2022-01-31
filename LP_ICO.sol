@@ -50,6 +50,8 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
 
     mapping(uint256 => address[]) public whiteLists;
 
+    uint256[] public poolBalances;
+
     event LiqiudityPoolCreated(
         uint256 indexed index,
         address indexed sender,
@@ -133,7 +135,7 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
         require(bytes(name).length <= 15, "length of name is too long");
 
         uint256 index = pools.length;
-
+        poolBalances[index] = amountOfSellToken;
         if (enableWhiteList) {
             whiteLists[index] = whiteList;
         }
@@ -194,6 +196,7 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
 
         require(balance > amount, "ERC20: transfer amount exceeds balance");
         ehterStakedByUsers[msg.sender] = amount;
+        poolBalances[index] = poolBalances[index] - amount;
         sendFundsToPoolCreator(index);
     }
 
@@ -300,6 +303,23 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
         }
 
         return false;
+    }
+
+    function withdrawUnSoldTokens(uint256 index)
+        public
+        isPoolReadyForClaim(index)
+    {
+        require(msg.sender == pools[index].poolCreator, "Not creator of pool");
+        require(poolBalances[index] > 0, "Pool balance is zero");
+        IERC20(pools[index].sellToken).approve(
+            address(this),
+            poolBalances[index]
+        ); // ehterStakedByUsers price against address
+
+        IERC20(pools[index].sellToken).transfer(
+            msg.sender,
+            poolBalances[index]
+        );
     }
 
     modifier doesPoolExists(uint256 index) {
