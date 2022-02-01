@@ -16,7 +16,7 @@ contract FixedSwap is LP_ICO {
         address seedTokenAddress,
         address seedHubWallet,
         address usdt
-    )
+            )
         LP_ICO(
             trasnctionFee,
             seedTransactionFee,
@@ -24,51 +24,36 @@ contract FixedSwap is LP_ICO {
             seedTokenAddress,
             seedHubWallet,
             usdt
-        )
+                    )
     {}
 
     function createLiquidityPool(
-        string memory name,
-        address sellToken,
-        uint256 swapRatio,
-        uint256 maxAmountPerWallet,
-        uint256 amountOfSellToken,
-        uint256[] memory time,
-        bool onlySeedHolders,
-        bool enableWhiteList,
-        bool isUSDT,
+       Pool memory pool,
         address[] memory whiteList
     ) public {
         create(
-            name,
-            sellToken,
-            swapRatio,
-            maxAmountPerWallet,
-            amountOfSellToken,
-            time,
-            onlySeedHolders,
-            enableWhiteList,
-            isUSDT,
-            whiteList
+          pool,
+          whiteList
         );
     }
 
-    function calculateAmount(
+      function calculateAmount(
         uint256 price,
         uint256 swapRatio,
         uint256 decimals
     ) public pure returns (uint256) {
         uint256 amount = price.mul(swapRatio * 10**decimals);
 
-        if (decimals < 18) {
+        if(decimals<18){
             amount = amount.div(1 * 10**decimals);
-        } else {
-            amount = amount.div(1 * 10**18);
+
+        }else{
+
+        amount = amount.div(1 * 10**18);
         }
 
         return amount;
     }
-
     function getAvalibleFunds(uint256 index) internal view returns (uint256) {
         return sellTokenCollected[index];
     }
@@ -106,7 +91,7 @@ contract FixedSwap is LP_ICO {
         uint256 index,
         uint256 amount,
         uint256 price
-    ) internal isPoolClosed(index) {
+    ) internal  isPoolClosed(index) {
         Pool memory pool = pools[index];
 
         require(
@@ -137,10 +122,12 @@ contract FixedSwap is LP_ICO {
         uint256 index,
         uint256 amount,
         uint256 price
-    ) public payable {
+    ) payable public {
         IERC20(USDT).transferFrom(msg.sender, address(this), price);
         addBidUSDT(index, amount, price);
     }
+
+    
 
     modifier checkIfTransactionIsPossible(uint256 index, uint256 amount) {
         uint256 amoutOfFunds = sellTokenCollected[index];

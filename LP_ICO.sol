@@ -113,47 +113,29 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
         return deductedFee;
     }
 
-    function create(
-        string memory name,
-        address sellToken,
-        uint256 swapRatio,
-        uint256 maxAmountPerWallet,
-        uint256 amountOfSellToken,
-        uint256[] memory time,
-        bool onlySeedHolders,
-        bool enableWhiteList,
-        bool isUSDT,
-        address[] memory whiteList
-    ) public nonReentrant {
+    function create(Pool memory pool, address[] memory whiteList)
+        public
+        nonReentrant
+    {
         require(tx.origin == msg.sender, "disallow contract caller");
-        require(amountOfSellToken != 0, "invalid amountTotal0");
-        require(time[0] > block.timestamp, "invalid openAt");
-        require(time[1] > time[0], "invalid closeAt");
-        require(time[2] > time[1], "invalid claim date");
-        require(time[1] > block.timestamp, "invalid close time");
-        require(time[2] > block.timestamp, "invalid claim date");
-        require(bytes(name).length <= 15, "length of name is too long");
+        require(pool.amountOfSellToken != 0, "invalid amountTotal0");
+        require(pool.startAuctionAt > block.timestamp, "invalid openAt");
+        require(pool.endAuctionAt > pool.startAuctionAt, "invalid closeAt");
+        require(
+            pool.claimAuctionFundsAt > pool.endAuctionAt,
+            "invalid claim date"
+        );
+        require(pool.endAuctionAt > block.timestamp, "invalid close time");
+        require(
+            pool.claimAuctionFundsAt > block.timestamp,
+            "invalid claim date"
+        );
 
         uint256 index = pools.length;
-        poolBalances[index] = amountOfSellToken;
-        if (enableWhiteList) {
+        poolBalances.push(pool.amountOfSellToken);
+        if (pool.enableWhiteList) {
             whiteLists[index] = whiteList;
         }
-
-        Pool memory pool;
-
-        pool.name = name;
-        pool.sellToken = sellToken;
-        pool.startAuctionAt = time[0];
-        pool.endAuctionAt = time[1];
-        pool.claimAuctionFundsAt = time[2];
-        pool.maxAmountPerWallet = maxAmountPerWallet;
-        pool.onlySeedHolders = onlySeedHolders;
-        pool.enableWhiteList = enableWhiteList;
-        pool.poolCreator = msg.sender;
-        pool.swapRatio = swapRatio;
-        pool.maxAmountPerWallet = maxAmountPerWallet;
-        pool.isUSDT = isUSDT;
 
         pools.push(pool);
         poolOwners[index] = msg.sender;
@@ -162,11 +144,11 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
         IERC20(pool.sellToken).transferFrom(
             msg.sender,
             address(this),
-            amountOfSellToken
+            pool.amountOfSellToken
         );
 
         uint256 decimals = ERC20(pool.sellToken).decimals();
-        sellTokenCollected[index] = amountOfSellToken * 10**decimals;
+        sellTokenCollected[index] = pool.amountOfSellToken * 10**decimals;
         FundsAdded(index, pool.poolCreator, pool);
     }
 
