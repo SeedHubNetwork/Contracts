@@ -302,6 +302,8 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
             msg.sender,
             poolBalances[index]
         );
+
+        poolBalances[index] = 0;
     }
 
     modifier doesPoolExists(uint256 index) {
