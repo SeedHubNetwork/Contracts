@@ -255,7 +255,7 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
                 "Not enough funds for usdt please contact support"
             );
             IERC20(USDT).approve(address(this), funds);
-            IERC20(USDT).transfer(msg.sender, funds);
+            IERC20(USDT).transfer(pool.poolCreator, funds);
         }
 
         ethCollectedForPoolOwner[pool.poolCreator] = 0;
