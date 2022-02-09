@@ -16,7 +16,7 @@ contract FixedSwap is LP_ICO {
         address seedTokenAddress,
         address seedHubWallet,
         address usdt
-            )
+    )
         LP_ICO(
             trasnctionFee,
             seedTransactionFee,
@@ -24,36 +24,31 @@ contract FixedSwap is LP_ICO {
             seedTokenAddress,
             seedHubWallet,
             usdt
-                    )
+        )
     {}
 
-    function createLiquidityPool(
-       Pool memory pool,
-        address[] memory whiteList
-    ) public {
-        create(
-          pool,
-          whiteList
-        );
+    function createLiquidityPool(Pool memory pool, address[] memory whiteList)
+        public
+    {
+        create(pool, whiteList);
     }
 
-      function calculateAmount(
+    function calculateAmount(
         uint256 price,
         uint256 swapRatio,
         uint256 decimals
     ) public pure returns (uint256) {
         uint256 amount = price.mul(swapRatio * 10**decimals);
 
-        if(decimals<18){
+        if (decimals < 18) {
             amount = amount.div(1 * 10**decimals);
-
-        }else{
-
-        amount = amount.div(1 * 10**18);
+        } else {
+            amount = amount.div(1 * 10**18);
         }
 
         return amount;
     }
+
     function getAvalibleFunds(uint256 index) internal view returns (uint256) {
         return sellTokenCollected[index];
     }
@@ -91,7 +86,7 @@ contract FixedSwap is LP_ICO {
         uint256 index,
         uint256 amount,
         uint256 price
-    ) internal  isPoolClosed(index) {
+    ) internal isPoolClosed(index) {
         Pool memory pool = pools[index];
 
         require(
@@ -122,12 +117,10 @@ contract FixedSwap is LP_ICO {
         uint256 index,
         uint256 amount,
         uint256 price
-    ) payable public {
+    ) public payable {
         IERC20(USDT).transferFrom(msg.sender, address(this), price);
         addBidUSDT(index, amount, price);
     }
-
-    
 
     modifier checkIfTransactionIsPossible(uint256 index, uint256 amount) {
         uint256 amoutOfFunds = sellTokenCollected[index];

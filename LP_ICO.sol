@@ -35,7 +35,6 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
         //Swap ratio
         uint256 swapRatio;
         bool isUSDT;
-        address poolCurrency;
     }
 
     Pool[] internal pools;
@@ -177,7 +176,9 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
         // uint256 decimals = ERC20(pool.sellToken).decimals();
 
         require(balance > amount, "ERC20: transfer amount exceeds balance");
-        ehterStakedByUsers[msg.sender] = amount;
+        ehterStakedByUsers[msg.sender] =
+            ehterStakedByUsers[msg.sender] +
+            amount;
         poolBalances[index] = poolBalances[index] - amount;
         sendFundsToPoolCreator(index);
     }
