@@ -43,7 +43,7 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
 
     mapping(address => uint256) public ethCollectedForPoolOwner;
 
-    mapping(address => uint256) public ehterStakedByUsers;
+    mapping(uint256 => mapping(address => uint256)) public ehterStakedByUsers;
 
     mapping(uint256 => uint256) public sellTokenCollected;
 
@@ -176,8 +176,8 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
         // uint256 decimals = ERC20(pool.sellToken).decimals();
 
         require(balance > amount, "ERC20: transfer amount exceeds balance");
-        ehterStakedByUsers[msg.sender] =
-            ehterStakedByUsers[msg.sender] +
+        ehterStakedByUsers[index][msg.sender] =
+            ehterStakedByUsers[index][msg.sender] +
             amount;
         poolBalances[index] = poolBalances[index] - amount;
         sendFundsToPoolCreator(index);
@@ -190,20 +190,20 @@ contract LP_ICO is Ownable, ReentrancyGuard, Configurable {
         Pool memory pool = pools[index];
 
         require(
-            ehterStakedByUsers[msg.sender] != 0,
+            ehterStakedByUsers[index][msg.sender] != 0,
             "Caller has no funds staked"
         );
 
         IERC20(pool.sellToken).approve(
             address(this),
-            ehterStakedByUsers[msg.sender]
+            ehterStakedByUsers[index][msg.sender]
         ); // ehterStakedByUsers price against address
         IERC20(pool.sellToken).transfer(
             msg.sender,
-            ehterStakedByUsers[msg.sender]
+            ehterStakedByUsers[index][msg.sender]
         );
-        TokensSwaped(index, msg.sender, ehterStakedByUsers[msg.sender]);
-        ehterStakedByUsers[msg.sender] = 0;
+        TokensSwaped(index, msg.sender, ehterStakedByUsers[index][msg.sender]);
+        ehterStakedByUsers[index][msg.sender] = 0;
     }
 
     function sendFundsToPoolCreator(uint256 index) public {
