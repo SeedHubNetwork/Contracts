@@ -47,6 +47,10 @@ contract Configurable is Ownable {
         _config.seedTokenAddress = Seed;
     }
 
+        function updateSeedHubWalletAddress(address SeedHubWallet) public onlyOwner {
+        _config.seedHubWallet = SeedHubWallet;
+    }
+
     function getTransactionFee() public view returns (uint256) {
         return _config.trasnctionFee;
     }
