@@ -43,6 +43,10 @@ contract Configurable is Ownable {
         _config.seedTransactionFee = txFee;
     }
 
+    function updateSeedTokenMinHolding(uint256 seedHolding) public onlyOwner {
+        _config.seedTokenMinHolding = seedHolding;
+    }    
+
     function updateSeedAddress(address Seed) public onlyOwner {
         _config.seedTokenAddress = Seed;
     }
